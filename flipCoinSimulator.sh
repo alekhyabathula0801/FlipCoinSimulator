@@ -1,4 +1,6 @@
 #!/bin/bash -x
+#variables
+max=0
 #constants
 HEAD=1
 HEAD_HEAD=1
@@ -17,13 +19,15 @@ dict=( [H]=0 [T]=0 [HH]=0 [HT]=0 [TH]=0 [TT]=0 [HHH]=0 [HHT]=0 [HTH]=0 [HTT]=0 [
 read -p "enter number of flips" n
 for (( flip=1; flip<=$n; flip++ ))
 do
-	if [ $((RANDOM%2)) -eq $HEAD ]
+	singletValue=$((RANDOM%2))
+	if [ $singletValue -eq $HEAD ]
 	then
 		((dict[H]++))
 	else
 		((dict[T]++))
 	fi
-	case $((RANDOM%4)) in
+	doubletValue=$((RANDOM%4))
+	case $doubletValue in
 		$HEAD_HEAD)
 			((dict[HH]++))
 		;;
@@ -37,7 +41,8 @@ do
                         ((dict[TT]++))
                 ;;
 	esac
-	case $((RANDOM%8)) in
+	tripletValue=$((RANDOM%8))
+	case $tripletValue in
                 $H_H_H)
                         ((dict[HHH]++))
 		;;
@@ -67,6 +72,14 @@ done
 for key in "${!dict[@]}"
 do
 	percent[$key]=$((${dict[$key]}*100/$n))
+	if [ ${percent[$key]} -gt $max ]
+	then
+		max=${percent[$key]}
+		winningCombo=$key
+	fi
 done
-echo number of ${!dict[@]} are ${dict[@]}
-echo percentage of ${!percent[@]} are ${percent[@]} respectively
+for k in "${!percent[@]}"
+do
+	echo $k ' - ' ${percent["$k"]}
+done | sort -n -k3
+echo winning combination is $winningCombo with percentage of $max
